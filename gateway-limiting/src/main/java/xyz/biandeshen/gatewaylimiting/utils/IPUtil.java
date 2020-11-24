@@ -1,5 +1,4 @@
-package xyz.biandeshen.simpllifylimiting.utils;
-
+package xyz.biandeshen.gatewaylimiting.utils;
 
 import javax.servlet.http.HttpServletRequest;
 

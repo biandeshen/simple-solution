@@ -1,0 +1,44 @@
+server:
+  port: 10001
+eureka:
+  instance:
+    hostname: gateway-limiting
+    preferIpAddress: true
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+spring:
+  application:
+    name: gateway-limiting
+  cloud:
+    #    loadbalancer:
+    #      ribbon:
+    #        enabled: false
+    gateway:
+      routes:
+        -
+        - id: open
+          uri: lb://open
+          predicates:
+            - Path=/open/**
+          filters:
+            - StripPrefix= 1
+            - name: RequestRateLimiter
+              args:
+                # ipKeyResolver 用于限流的键的解析器的 Bean 对象的名字。
+                # 它使用 SpEL 表达式根据#{@beanName}从 Spring 容器中获取 Bean 对象
+                key-resolver: "#{@ipKeyResolver}"
+                # replenishRate：令牌桶每秒填充平均速率
+                redis-rate-limiter.replenishRate: 1
+                # burstCapacity：令牌桶总容量
+                redis-rate-limiter.burstCapacity: 1
+        - id: system
+          uri: lb://system
+          predicates:
+            - Path=/system/**
+          filters:
+            - StripPrefix= 1
+  # 配置Redis 127.0.0.1可以省略配置
+  redis:
+    host: 104.245.41.6
+    port: 6379
